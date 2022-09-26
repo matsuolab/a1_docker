@@ -32,6 +32,11 @@ RUN apt-get update && \
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Gazebo
+RUN apt-get update && \
+    apt-get install -y ros-noetic-controller-interface  ros-noetic-gazebo-ros-control && \
+    apt-get install -y ros-noetic-joint-state-controller ros-noetic-effort-controllers ros-noetic-joint-trajectory-controller
+
 # Unitree SDK
 RUN mkdir /root/sdk && cd /root/sdk && \
     git clone https://github.com/lcm-proj/lcm && \
@@ -39,12 +44,14 @@ RUN mkdir /root/sdk && cd /root/sdk && \
     cd lcm && mkdir build && cd build && cmake ../ && make && make install && \
     cd ../../unitree_legged_sdk && git checkout v3.2 && mkdir build && cd build && cmake ../ && make
 
-# Unitree ros to real
+# Unitree ROS
 RUN mkdir -p /root/external_catkin_ws/src && \
     cd /root/external_catkin_ws/src && \
     git clone https://github.com/unitreerobotics/unitree_ros_to_real && \
-    cd unitree_ros_to_real && git checkout v3.2.1 && cd ../../ &&\
+    git clone https://github.com/unitreerobotics/unitree_ros && \
+    cd unitree_ros_to_real && git checkout v3.2.1 && cd ../../ && \
     bash -c "source /opt/ros/noetic/setup.bash; export UNITREE_SDK_VERSION=3_2; export UNITREE_LEGGED_SDK_PATH=/root/sdk/unitree_legged_sdk; export UNITREE_PLATFORM="amd64"; catkin_make"
+
 
 WORKDIR /root
 
